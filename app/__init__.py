@@ -3,7 +3,10 @@ from flask import Flask, jsonify
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
-    app.config.from_mapping(SQLALCHEMY_DATABASE_URI="sqlite:///expenses.sqlite3")
+    app.config.from_mapping(
+        SQLALCHEMY_DATABASE_URI="sqlite:///expenses.sqlite3",
+        JWT_SECRET_KEY="super_secret_key",
+    )
 
     @app.route("/")
     def home():
@@ -31,13 +34,17 @@ def create_app():
 
     from app.db import db
     from app.migrate import migrate
+    from app.jwt import jwt
 
     db.init_app(app)
     migrate.init_app(app, db, render_as_batch=True)
+    jwt.init_app(app)
 
     from app import expense
+    from app import user
 
     app.register_blueprint(expense.bp)
+    app.register_blueprint(user.bp)
     app.register_blueprint(swagger_ui_blueprint)
 
     @app.errorhandler(404)
