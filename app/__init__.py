@@ -1,12 +1,11 @@
+import os
 from flask import Flask, jsonify
 
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
-    app.config.from_mapping(
-        SQLALCHEMY_DATABASE_URI="sqlite:///expenses.sqlite3",
-        JWT_SECRET_KEY="super_secret_key",
-    )
+    config_type = os.getenv("CONFIG_TYPE", default="app.config.Config")
+    app.config.from_object(config_type)
 
     @app.route("/")
     def home():
